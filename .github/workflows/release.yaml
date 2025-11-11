@@ -20,9 +20,11 @@ jobs:
           - install_ffmpeg: "true"
             tag_latest: "ghcr.io/${{ github.repository }}/${{ matrix.name }}:latest"
             tag_versioned: "ghcr.io/${{ github.repository }}/${{ matrix.name }}:${{ inputs.version }}"
+            platforms: "linux/amd64,linux/arm64"
           - install_ffmpeg: "false"
             tag_latest: "ghcr.io/${{ github.repository }}/${{ matrix.name }}:latest-ffmpeg"
             tag_versioned: "ghcr.io/${{ github.repository }}/${{ matrix.name }}:${{ inputs.version }}-ffmpeg"
+            platforms: "linux/amd64,linux/arm64"
     steps:
       - name: "Checkout Repository"
         uses: actions/checkout@v4
