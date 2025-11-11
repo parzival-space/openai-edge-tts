@@ -65,7 +65,7 @@ jobs:
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             https://api.github.com/repos/travisvn/openai-edge-tts/releases/tags/${{ inputs.version }}
-          cat .github/RELEASE_HEADER.md > ./release/release-notes.md
+          cat ./.github/RELEASE-HEADER.md > ./release/release-notes.md
           jq -r '.body' ./release/release.json >> ./release/release-notes.md
 
       - name: "Create Release"
