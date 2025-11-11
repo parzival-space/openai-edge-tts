@@ -53,6 +53,9 @@ jobs:
           tags: |
             ${{ matrix.tag_latest }}
             ${{ matrix.tag_versioned }}
+
+  # this entire release section is not really necessary, but I provide it just as a way for users to
+  # easily find the correct repository release notes from upstream
   release:
     name: "Create GitHub Release ${{ inputs.version }}"
     needs: build
@@ -65,7 +68,10 @@ jobs:
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             https://api.github.com/repos/travisvn/openai-edge-tts/releases/tags/${{ inputs.version }}
-          cat ./.github/RELEASE-HEADER.md > ./release/release-notes.md
+          
+          echo '> [!IMPORTANT]' > ./release/release-notes.md
+          echo '> This is an unofficial multiplatform build of the [openai-edge-tts project](https://github.com/travisvn/openai-edge-tts).' >> ./release/release-notes.md
+          echo '' >> ./release/release-notes.md
           jq -r '.body' ./release/release.json >> ./release/release-notes.md
 
       - name: "Create Release"
