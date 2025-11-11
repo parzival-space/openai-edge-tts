@@ -18,12 +18,12 @@ jobs:
       matrix:
         include:
           - install_ffmpeg: "true"
-            tag_latest: "ghcr.io/${{ github.repository }}/${{ matrix.name }}:latest"
-            tag_versioned: "ghcr.io/${{ github.repository }}/${{ matrix.name }}:${{ inputs.version }}"
+            tag_latest: "ghcr.io/${{ github.repository }}:latest"
+            tag_versioned: "ghcr.io/${{ github.repository }}:${{ inputs.version }}"
             platforms: "linux/amd64,linux/arm64"
           - install_ffmpeg: "false"
-            tag_latest: "ghcr.io/${{ github.repository }}/${{ matrix.name }}:latest-ffmpeg"
-            tag_versioned: "ghcr.io/${{ github.repository }}/${{ matrix.name }}:${{ inputs.version }}-ffmpeg"
+            tag_latest: "ghcr.io/${{ github.repository }}:latest-ffmpeg"
+            tag_versioned: "ghcr.io/${{ github.repository }}:${{ inputs.version }}-ffmpeg"
             platforms: "linux/amd64,linux/arm64"
     steps:
       - name: "Checkout Repository"
