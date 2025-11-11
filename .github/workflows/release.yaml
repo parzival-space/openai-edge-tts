@@ -43,7 +43,7 @@ jobs:
       - name: "Build and Push"
         uses: docker/build-push-action@v6
         env:
-          INSTALL_FFMPEG_ARG=${{ matrix.install_ffmpeg }}
+          INSTALL_FFMPEG_ARG: ${{ matrix.install_ffmpeg }}
         with:
           push: true
           provenance: false
