@@ -1,0 +1,75 @@
+name: "Create Release"
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release (e.g., v1.0.0)"
+        required: true
+        default: "v1.0.0"
+
+jobs:
+  build:
+    name: "Image: ${{ matrix.tag_versioned }}"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        include:
+          - install_ffmpeg: "true"
+            tag_latest: "ghcr.io/${{ github.repository }}/${{ matrix.name }}:latest"
+            tag_versioned: "ghcr.io/${{ github.repository }}/${{ matrix.name }}:${{ inputs.version }}"
+          - install_ffmpeg: "false"
+            tag_latest: "ghcr.io/${{ github.repository }}/${{ matrix.name }}:latest-ffmpeg"
+            tag_versioned: "ghcr.io/${{ github.repository }}/${{ matrix.name }}:${{ inputs.version }}-ffmpeg"
+    steps:
+      - name: "Checkout Repository"
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: "Login to GitHub Container Registry"
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      - name: "Setup QEMU"
+        uses: docker/setup-qemu-action@v3
+      - name: "Setup Buildx"
+        uses: docker/setup-buildx-action@v3
+      - name: "Build and Push"
+        uses: docker/build-push-action@v6
+        env:
+          INSTALL_FFMPEG_ARG=${{ matrix.install_ffmpeg }}
+        with:
+          push: true
+          provenance: false
+          context: "."
+          file: "./Dockerfile"
+          platforms: ${{ matrix.platforms }}
+          tags: |
+            ${{ matrix.tag_latest }}
+            ${{ matrix.tag_versioned }}
+  release:
+    name: "Create GitHub Release ${{ inputs.version }}"
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Download Release Notes from upstream"
+        run: |
+          mkdir -p ./release
+          curl -L -o ./release/release.json \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/travisvn/openai-edge-tts/releases/tags/${{ inputs.version }}
+          cat .github/RELEASE_HEADER.md > ./release/release-notes.md
+          jq -r '.body' ./release/release.json >> ./release/release-notes.md
+
+      - name: "Create Release"
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.version }}
+          body_path: ./release/release-notes.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
